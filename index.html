@@ -454,6 +454,97 @@
       top: 0; left: 0; width: 100%; height: 100%;
       opacity: 0; cursor: pointer;
     }
+
+    /* Animation และสไตล์หน้าต่างต้อนรับ Admin (ลูกเล่นไก่และไข่น่ารักๆ) */
+    .welcome-box {
+      background: #FFFFFF;
+      border: 3px solid #FFF176;
+      border-radius: 32px;
+      padding: 26px 20px 22px 20px;
+      box-shadow: 0 16px 40px rgba(245, 127, 23, 0.22);
+      position: relative;
+      overflow: hidden;
+      max-width: 330px;
+    }
+    .welcome-chick-wrapper {
+      position: relative;
+      height: 95px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .welcome-chick {
+      font-size: 4.2rem;
+      display: inline-block;
+      filter: drop-shadow(0 6px 12px rgba(245, 127, 23, 0.25));
+      animation: hatchChick 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, chickHop 1.4s ease-in-out infinite alternate 0.7s;
+      cursor: pointer;
+    }
+    .welcome-egg {
+      font-size: 2.2rem;
+      display: inline-block;
+      opacity: 0.85;
+      animation: eggWobble 2s ease-in-out infinite;
+    }
+    .left-egg { animation-delay: 0.2s; }
+    .right-egg { animation-delay: 0.6s; }
+    @keyframes hatchChick {
+      0% { transform: scale(0.2) rotate(-20deg); opacity: 0; }
+      60% { transform: scale(1.25) rotate(10deg); opacity: 1; }
+      80% { transform: scale(0.95) rotate(-5deg); }
+      100% { transform: scale(1) rotate(0deg); }
+    }
+    @keyframes chickHop {
+      0% { transform: translateY(0) scale(1); }
+      100% { transform: translateY(-10px) scale(1.05); }
+    }
+    @keyframes eggWobble {
+      0%, 100% { transform: rotate(0deg); }
+      25% { transform: rotate(-12deg); }
+      75% { transform: rotate(12deg); }
+    }
+    .sparkle {
+      position: absolute;
+      font-size: 1.4rem;
+      animation: sparkleFloat 1.6s ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    .sparkle-1 { top: 6px; left: 16%; animation-delay: 0.1s; }
+    .sparkle-2 { top: 2px; right: 16%; animation-delay: 0.4s; }
+    .sparkle-3 { bottom: 6px; right: 26%; animation-delay: 0.7s; }
+    @keyframes sparkleFloat {
+      0% { transform: scale(0.6) translateY(0); opacity: 0.4; }
+      100% { transform: scale(1.25) translateY(-8px); opacity: 1; }
+    }
+    .welcome-title {
+      margin: 4px 0 6px 0;
+      color: #F57F17;
+      font-size: 1.42rem;
+      font-weight: 700;
+    }
+    .welcome-sub {
+      font-size: 0.92rem;
+      color: #6D4C41;
+      margin: 0 0 16px 0;
+    }
+    .welcome-btn {
+      background: linear-gradient(135deg, #8BC34A, #7CB342);
+      color: white;
+      border: none;
+      border-radius: 18px;
+      padding: 11px 28px;
+      font-family: 'Mali', cursive;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(139, 195, 74, 0.35);
+      transition: transform 0.15s;
+    }
+    .welcome-btn:active {
+      transform: scale(0.95);
+    }
     
 
   </style>
@@ -538,19 +629,32 @@
   </div>
 
   <!-- 🔑 Modal เข้าสู่ระบบ Admin (PIN: 8055) -->
-  <div class="modal-overlay" id="adminModal">
-    <div class="modal-box">
+  <div class="modal-overlay" id="adminModal" onclick="if(event.target===this)closeModal('adminModal')">
+    <div class="modal-box" style="position:relative; max-width:320px; padding:26px 20px;">
+      <span class="close-sheet" style="top:14px; right:16px; font-size:1.2rem; cursor:pointer;" onclick="closeModal('adminModal')" title="ปิด">✖</span>
       <div style="font-size: 2.2rem; margin-bottom: 5px;">🔑</div>
-      <h3 style="margin: 0 0 5px 0; color:#F57F17; font-size:1.2rem;">เข้าสู่ระบบ Admin</h3>
-      <p style="font-size:0.85rem; color:#777; margin:0 0 15px 0;">ใส่รหัสผ่านเพื่อบันทึก พิมพ์รายงาน และจัดการรายการ</p>
+      <h3 style="margin: 0 0 6px 0; color:#F57F17; font-size:1.25rem;">เข้าสู่ระบบ Admin</h3>
+      <p style="font-size:0.85rem; color:#777; margin:0 0 16px 0;">กรอกรหัส PIN 4 หลัก เพื่อเข้าสู่ระบบ</p>
 
-      <!-- เอาคำว่า "เช่น" ออก และเพิ่มระบบเด้งเข้าสู่ระบบอัตโนมัติเมื่อพิมพ์ครบ 4 หลัก -->
-      <input type="password" id="adminPinInput" placeholder="กรอกรหัส PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="text-align:center; font-size:1.4rem; letter-spacing:6px; margin-bottom:15px;" oninput="checkAutoPin(this)" onkeydown="if(event.key==='Enter')loginAdmin()">
+      <!-- เหลือแค่ช่องสำหรับพิมพ์ PIN ก็พอ -->
+      <input type="password" id="adminPinInput" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="text-align:center; font-size:1.6rem; letter-spacing:10px; margin-bottom:6px; height:52px;" oninput="checkAutoPin(this)" onkeydown="if(event.key==='Enter')loginAdmin()">
+    </div>
+  </div>
 
-      <div class="btn-container" style="margin-top:5px;">
-        <button class="btn" style="background:#eee; color:#555; box-shadow:none; font-size:1rem; padding:12px;" onclick="closeModal('adminModal')">ยกเลิก</button>
-        <button class="btn" style="background:#8BC34A; box-shadow:none; font-size:1rem; padding:12px;" onclick="loginAdmin()">เข้าสู่ระบบ</button>
+  <!-- 🐣 Modal ต้อนรับ Admin (พร้อมลูกเล่นไก่และไข่น่ารักๆ) -->
+  <div class="modal-overlay" id="welcomeModal" onclick="if(event.target===this)closeModal('welcomeModal')">
+    <div class="modal-box welcome-box">
+      <div class="welcome-chick-wrapper">
+        <span class="sparkle sparkle-1">✨</span>
+        <span class="sparkle sparkle-2">🌟</span>
+        <span class="sparkle sparkle-3">✨</span>
+        <span class="welcome-egg left-egg">🥚</span>
+        <span class="welcome-chick">🐣</span>
+        <span class="welcome-egg right-egg">🥚</span>
       </div>
+      <h3 class="welcome-title">ยินดีต้อนรับ Admin!</h3>
+      <p class="welcome-sub">โครงการเลี้ยงไก่ไข่ 🐔 พร้อมใช้งานแล้วจ้า</p>
+      <button class="welcome-btn" onclick="closeModal('welcomeModal')">เริ่มใช้งาน 🚀</button>
     </div>
   </div>
 
@@ -770,11 +874,18 @@
         sessionStorage.setItem('chicken_role', 'admin');
         closeModal('adminModal');
         applyRoleUI();
-        alert("ยินดีต้อนรับ Admin! พร้อมบันทึก พิมพ์รายงาน และจัดการระบบแล้วจ้า 🎉");
+        showWelcomeModal();
       } else {
         alert("⚠️ รหัสผ่านไม่ถูกต้อง");
         document.getElementById('adminPinInput').value = "";
         document.getElementById('adminPinInput').focus();
+      }
+    }
+
+    function showWelcomeModal() {
+      const modal = document.getElementById('welcomeModal');
+      if (modal) {
+        modal.style.display = 'flex';
       }
     }
 
