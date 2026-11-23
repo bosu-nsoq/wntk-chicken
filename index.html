@@ -411,8 +411,8 @@
       <h3 style="margin: 0 0 5px 0; color:#F57F17; font-size:1.2rem;">เข้าสู่ระบบ Admin</h3>
       <p style="font-size:0.85rem; color:#777; margin:0 0 15px 0;">ใส่รหัสผ่านเพื่อบันทึก พิมพ์รายงาน และจัดการรายการ</p>
 
-      <!-- เอาคำว่า "เช่น" ออกตามสั่ง -->
-      <input type="password" id="adminPinInput" placeholder="กรอกรหัส PIN" maxlength="12" style="text-align:center; font-size:1.2rem; letter-spacing:3px; margin-bottom:15px;" onkeydown="if(event.key==='Enter')loginAdmin()">
+      <!-- เอาคำว่า "เช่น" ออก และเพิ่มระบบเด้งเข้าสู่ระบบอัตโนมัติเมื่อพิมพ์ครบ 4 หลัก -->
+      <input type="password" id="adminPinInput" placeholder="กรอกรหัส PIN" maxlength="4" inputmode="numeric" pattern="[0-9]*" style="text-align:center; font-size:1.4rem; letter-spacing:6px; margin-bottom:15px;" oninput="checkAutoPin(this)" onkeydown="if(event.key==='Enter')loginAdmin()">
 
       <div class="btn-container" style="margin-top:5px;">
         <button class="btn" style="background:#eee; color:#555; box-shadow:none; font-size:1rem; padding:12px;" onclick="closeModal('adminModal')">ยกเลิก</button>
@@ -612,6 +612,21 @@
       setTimeout(() => {
         document.getElementById('adminPinInput').focus();
       }, 200);
+    }
+
+    function checkAutoPin(el) {
+      const pin = el.value.trim();
+      if (pin.length >= 4) {
+        if (pin === '8055') {
+          loginAdmin();
+        } else {
+          setTimeout(() => {
+            alert("⚠️ รหัสผ่านไม่ถูกต้อง");
+            el.value = "";
+            el.focus();
+          }, 80);
+        }
+      }
     }
 
     function loginAdmin() {
