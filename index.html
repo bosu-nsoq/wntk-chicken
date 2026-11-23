@@ -558,8 +558,6 @@
       <div class="top-actions">
         <!-- ปุ่มพิมพ์รายงาน (แสดงเมื่อเป็น Admin) -->
         <button id="nav-print-btn" class="icon-btn-round" onclick="openPrintModal()" title="พิมพ์รายงานบัญชี" style="display:none;">🖨️</button>
-        <!-- ปุ่มดูรายการเดินบัญชี -->
-        <button class="icon-btn-round" onclick="toggleHistory()" title="เปิดดูรายการเดินบัญชี">📜</button>
         <!-- ปุ่มเข้าสู่ระบบ / ออกจากระบบ Admin -->
         <button id="auth-btn" class="auth-btn-pill" onclick="handleAuthClick()">🔑 Admin</button>
       </div>
@@ -591,6 +589,10 @@
       <div class="btn-container">
         <button class="btn btn-income" onclick="prepareSubmit('รายรับ')">รับเงิน</button>
         <button class="btn btn-expense" onclick="prepareSubmit('รายจ่าย')">จ่ายเงิน</button>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <button type="button" class="btn" style="width:100%; background:#FFF8E1; border:1.5px solid #FFD54F; color:#F57F17; height:46px; font-size:1rem; box-shadow:none;" onclick="toggleHistory()">📜 เปิดดูรายการเดินบัญชี</button>
       </div>
     </div>
     
@@ -642,8 +644,8 @@
   </div>
 
   <!-- 🐣 Modal ต้อนรับ Admin (พร้อมลูกเล่นไก่และไข่น่ารักๆ) -->
-  <div class="modal-overlay" id="welcomeModal" onclick="if(event.target===this)closeModal('welcomeModal')">
-    <div class="modal-box welcome-box">
+  <div class="modal-overlay" id="welcomeModal" onclick="closeModal('welcomeModal')">
+    <div class="modal-box welcome-box" style="cursor:pointer;" title="แตะเพื่อปิด">
       <div class="welcome-chick-wrapper">
         <span class="sparkle sparkle-1">✨</span>
         <span class="sparkle sparkle-2">🌟</span>
@@ -652,9 +654,7 @@
         <span class="welcome-chick">🐣</span>
         <span class="welcome-egg right-egg">🥚</span>
       </div>
-      <h3 class="welcome-title">ยินดีต้อนรับ Admin!</h3>
-      <p class="welcome-sub">โครงการเลี้ยงไก่ไข่ 🐔 พร้อมใช้งานแล้วจ้า</p>
-      <button class="welcome-btn" onclick="closeModal('welcomeModal')">เริ่มใช้งาน 🚀</button>
+      <h3 class="welcome-title" style="margin: 6px 0 4px 0;">ยินดีต้อนรับ Admin!</h3>
     </div>
   </div>
 
@@ -886,6 +886,9 @@
       const modal = document.getElementById('welcomeModal');
       if (modal) {
         modal.style.display = 'flex';
+        setTimeout(() => {
+          closeModal('welcomeModal');
+        }, 1800);
       }
     }
 
