@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Chicken Account</title>
+
+  <!-- PWA & Apple iOS Standalone App Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#FFF9C4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="Chicken Account">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    /* Font Mali ทั้งเว็บ */
+    body {
+      font-family: 'Mali', cursive;
+      margin: 0; padding: 0;
+      background: linear-gradient(180deg, #FFF9C4 0%, #FFECB3 100%);
+      color: #5D4037;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* กล่องหลัก */
+    .main-card {
+      background: rgba(255, 255, 255, 0.85); /* ปรับความทึบนิดหน่อยให้อ่านง่าย */
+      backdrop-filter: blur(10px);
+      border-radius: 30px;
+      padding: 30px 20px;
+      width: 85%; max-width: 380px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(93, 64, 55, 0.1);
+      border: 2px solid white;
+      position: relative; /* เพื่อให้ปุ่มประวัติอ้างอิงตำแหน่งได้ */
+      box-sizing: border-box;
+    }
+
+    /* แก้ไขหัวข้อ: เพิ่ม Line-height ไม่ให้ซ้อนกัน */
+    h2 { 
+      margin: 0 0 15px 0; 
+      color: #F57F17; 
+      font-size: 1.3rem; 
+      font-weight: 700;
+      line-height: 1.6; /* เพิ่มระยะห่างระหว่างบรรทัด */
+    }
+
+    /* การ์ดยอดเงินคงเหลือ */
+    .balance-card {
+      background: #FFFDE7;
+      border: 2px dashed #FBC02D;
+      border-radius: 20px;
+      padding: 15px;
+      margin: 15px 0 25px 0;
+    }
+    .balance-label { font-size: 0.9rem; color: #888; }
+    .balance-value { font-size: 2.2rem; font-weight: 700; color: #333; margin-top: 5px; }
+
+    /* Input Fields */
+    input#amount {
+      width: 100%; padding: 10px; border: none; border-bottom: 3px solid #FFD54F;
+      background: transparent;
+      font-family: 'Mali', cursive;
+      font-size: 3rem; font-weight: bold; color: #F57F17;
+      text-align: center; outline: none; margin-bottom: 20px;
+      box-sizing: border-box;
+    }
+    input#amount::placeholder { color: #E0E0E0; }
+
+    select, input[type="text"] {
+      width: 100%; padding: 15px; border: none; border-radius: 15px;
+      background: #fff; 
+      font-family: 'Mali', cursive; font-size: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      outline: none; margin-bottom: 10px; box-sizing: border-box;
+      color: #5D4037;
+    }
+
+    /* ปุ่มกด */
+    .btn-container { display: flex; gap: 15px; margin-top: 15px; }
+    .btn {
+      flex: 1; padding: 15px; border: none; border-radius: 20px;
+      font-family: 'Mali', cursive; font-size: 1.2rem; font-weight: 700;
+      cursor: pointer; color: white;
+      transition: transform 0.2s;
+      box-shadow: 0 5px 0 rgba(0,0,0,0.1);
+    }
+    .btn:active { transform: translateY(4px); box-shadow: none; }
+    .btn-income { background: #8BC34A; }
+    .btn-expense { background: #FF7043; }
+
+    /* ปุ่มประวัติเล็กๆ (Floating Button) */
+    .history-btn-small {
+      position: absolute;
+      top: 15px; right: 15px; /* ขยับตำแหน่งนิดหน่อยให้ดูสมดุล */
+      background: #fff; border: 2px solid #FFF176;
+      width: 40px; height: 40px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 10;
+    }
+
+    /* Slide Sheet (ประวัติ) */
+    #history-sheet {
+      position: fixed; bottom: -100%; left: 0; width: 100%; height: 70vh;
+      background: white; border-radius: 30px 30px 0 0;
+      box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
+      transition: bottom 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000; display: flex; flex-direction: column;
+      font-family: 'Mali', cursive;
+    }
+    .sheet-header { padding: 20px; text-align: center; font-weight: bold; border-bottom: 1px dashed #eee; font-size: 1.2rem; position: relative;}
+    .close-sheet { position: absolute; right: 20px; top: 20px; cursor: pointer; color: #ccc; }
+    .sheet-content { padding: 20px; overflow-y: auto; flex: 1; }
+
+    .history-item {
+      background: #FAFAFA; padding: 15px; border-radius: 15px; margin-bottom: 10px;
+      display: flex; justify-content: space-between; align-items: center;
+      border-left: 5px solid #ddd;
+    }
+    
+    /* Modal ต่างๆ */
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.3); backdrop-filter: blur(3px);
+      display: none; justify-content: center; align-items: center; z-index: 2000;
+    }
+    .modal-box {
+      background: white; padding: 30px; border-radius: 30px; width: 80%; max-width: 300px;
+      text-align: center; font-family: 'Mali', cursive;
+      animation: popUp 0.3s;
+    }
+    @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+    .loader { display: none; margin: 10px auto; width: 30px; height: 30px; border: 4px solid #fff; border-top: 4px solid #FBC02D; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  </style>
+</head>
+<body>
+
+  <div class="main-card">
+    <div class="history-btn-small" onclick="toggleHistory()">📜</div>
+
+    <h2>บัญชีรายรับ-รายจ่าย<br>โครงการเลี้ยงไก่ไข่ 🐣</h2>
+
+    <div class="balance-card">
+      <div class="balance-label">ยอดเงินคงเหลือ</div>
+      <div class="balance-value" id="total-balance">...</div>
+    </div>
+
+    <input type="number" id="amount" placeholder="0" inputmode="decimal" min="1">
+
+    <select id="noteSelect" onchange="checkOtherOption()">
+      <option value="" disabled selected>เลือกรายการ...</option>
+      <option value="อื่นๆ">✏️ อื่นๆ (ระบุเอง)</option>
+    </select>
+    <input type="text" id="noteInput" placeholder="ระบุรายการ..." style="display:none;">
+
+    <div class="btn-container">
+      <button class="btn btn-income" onclick="prepareSubmit('รายรับ')">รับเงิน</button>
+      <button class="btn btn-expense" onclick="prepareSubmit('รายจ่าย')">จ่ายเงิน</button>
+    </div>
+    
+    <div id="loader" class="loader"></div>
+  </div>
+
+  <div id="history-sheet">
+    <div class="sheet-header">
+      ประวัติ 5 รายการล่าสุด
+      <span class="close-sheet" onclick="toggleHistory()">✖</span>
+    </div>
+    <div class="sheet-content" id="history-list">
+      <div style="text-align:center; color:#ccc; margin-top:20px;">กำลังโหลด...</div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="confirmModal">
+    <div class="modal-box">
+      <h3>ยืนยันข้อมูล</h3>
+      <div style="text-align:left; background:#FFFDE7; padding:15px; border-radius:15px; margin:15px 0; color:#555;" id="confirmText"></div>
+      <div class="btn-container" style="margin-top:0;">
+        <button class="btn" style="background:#eee; color:#555; box-shadow:none;" onclick="closeModal('confirmModal')">แก้ก่อน</button>
+        <button class="btn" style="background:#8BC34A; box-shadow:none;" onclick="submitData()">ตกลง</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ลงทะเบียน Service Worker สำหรับ PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').catch(() => {});
+      });
+    }
+
+    // ============================================================
+    // API Bridge: เชื่อมต่อ Google Apps Script เมื่อรันบน GitHub Pages
+    // ============================================================
+    let GAS_URL = localStorage.getItem('chicken_gas_url') || "";
+
+    function getGasUrl() {
+      if (!GAS_URL || GAS_URL === "YOUR_GAS_URL_HERE") {
+        const input = prompt("🐣 กรุณากรอก Web App URL ของ Google Apps Script (เช่น https://script.google.com/macros/s/.../exec):");
+        if (input && input.trim()) {
+          GAS_URL = input.trim();
+          localStorage.setItem('chicken_gas_url', GAS_URL);
+        }
+      }
+      return GAS_URL;
+    }
+
+    function createGasProxy(successFn, failureFn) {
+      const runner = {
+        successFn: successFn || function() {},
+        failureFn: failureFn || function(err) {
+          console.warn("GAS Warning:", err);
+          const loader = document.getElementById('loader');
+          if (loader) loader.style.display = 'none';
+        },
+        withSuccessHandler: function(fn) {
+          return createGasProxy(fn, this.failureFn);
+        },
+        withFailureHandler: function(fn) {
+          return createGasProxy(this.successFn, fn);
+        }
+      };
+
+      return new Proxy(runner, {
+        get: function(target, prop) {
+          if (prop in target) return target[prop];
+          return function(...args) {
+            const url = getGasUrl();
+            if (!url) {
+              const loader = document.getElementById('loader');
+              if (loader) loader.style.display = 'none';
+              target.failureFn(new Error("ยังไม่ได้ระบุ Web App URL"));
+              return;
+            }
+
+            const encodedArgs = encodeURIComponent(JSON.stringify(args));
+            const getUrl = `${url}?action=${encodeURIComponent(prop)}&args=${encodedArgs}`;
+
+            fetch(getUrl)
+              .then(res => {
+                if (!res.ok) throw new Error("HTTP " + res.status);
+                return res.json();
+              })
+              .then(data => {
+                const loader = document.getElementById('loader');
+                if (loader) loader.style.display = 'none';
+                if (data && data.error) {
+                  target.failureFn(new Error(data.error));
+                } else {
+                  target.successFn(data);
+                }
+              })
+              .catch(err => {
+                // Fallback ไป POST หากคำขอยาวหรือ GET มีปัญหา
+                fetch(url, {
+                  method: "POST",
+                  headers: { "Content-Type": "text/plain;charset=utf-8" },
+                  body: JSON.stringify({ action: prop, args: args })
+                })
+                .then(res => res.json())
+                .then(data => {
+                  const loader = document.getElementById('loader');
+                  if (loader) loader.style.display = 'none';
+                  if (data && data.error) {
+                    target.failureFn(new Error(data.error));
+                  } else {
+                    target.successFn(data);
+                  }
+                })
+                .catch(postErr => {
+                  const loader = document.getElementById('loader');
+                  if (loader) loader.style.display = 'none';
+                  target.failureFn(postErr);
+                });
+              });
+          };
+        }
+      });
+    }
+
+    if (!window.google || !window.google.script || !window.google.script.run) {
+      window.google = window.google || {};
+      window.google.script = window.google.script || {};
+      window.google.script.run = createGasProxy();
+    }
+
+    let currentType = "";
+
+    // โหลดข้อมูลเมื่อเปิดเว็บ
+    window.onload = function() {
+      console.log("App Started");
+      google.script.run
+        .withSuccessHandler(updateUI)
+        .withFailureHandler(function(err){ alert("โหลดข้อมูลไม่สำเร็จ: " + err); })
+        .getDashboardData();
+    };
+
+    function checkOtherOption() {
+      const select = document.getElementById('noteSelect');
+      const input = document.getElementById('noteInput');
+      if (select.value === 'อื่นๆ') {
+        input.style.display = 'block'; input.focus();
+      } else {
+        input.style.display = 'none';
+      }
+    }
+
+    function prepareSubmit(type) {
+      const amount = document.getElementById('amount').value;
+      const select = document.getElementById('noteSelect');
+      const input = document.getElementById('noteInput');
+      let note = select.value === 'อื่นๆ' ? input.value : select.value;
+
+      if (!amount || isNaN(amount)) { alert("กรุณากรอกตัวเลข"); return; }
+      if (parseFloat(amount) <= 0) { alert("จำนวนเงินต้องมากกว่า 0 นะครับ"); return; }
+      if (!note) { alert("กรุณาระบุรายการ"); return; }
+
+      currentType = type;
+      document.getElementById('confirmText').innerHTML = `
+        <div style="margin-bottom:5px;"><strong>${type}</strong></div>
+        <div style="font-size:1.5rem; color:${type==='รายรับ'?'#8BC34A':'#FF7043'}"><strong>${parseFloat(amount).toLocaleString()}</strong> บาท</div>
+        <div style="font-size:0.9rem;">${note}</div>
+      `;
+      document.getElementById('confirmModal').style.display = 'flex';
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function submitData() {
+      closeModal('confirmModal');
+      document.getElementById('loader').style.display = 'block';
+      
+      const amount = document.getElementById('amount').value;
+      const select = document.getElementById('noteSelect');
+      const input = document.getElementById('noteInput');
+      let note = select.value === 'อื่นๆ' ? input.value : select.value;
+
+      google.script.run.withSuccessHandler(function(data) {
+        document.getElementById('loader').style.display = 'none';
+        document.getElementById('amount').value = "";
+        document.getElementById('noteSelect').selectedIndex = 0;
+        document.getElementById('noteInput').style.display = "none";
+        
+        updateUI(data);
+        alert("บันทึกเสร็จแล้วจ้า! 🎉"); 
+      }).withFailureHandler(function(err) {
+        document.getElementById('loader').style.display = 'none';
+        alert("เกิดข้อผิดพลาดในการบันทึก: " + err);
+      }).saveDataAndGetDashboard(currentType, amount, note);
+    }
+
+    function updateUI(data) {
+      // 1. อัปเดตยอดคงเหลือ
+      const totalEl = document.getElementById('total-balance');
+      const totalVal = data && data.total !== undefined ? data.total : 0;
+      totalEl.innerText = parseFloat(totalVal).toLocaleString();
+      totalEl.style.color = totalVal >= 0 ? '#333' : '#FF5252';
+
+      // 2. อัปเดตตัวเลือก Dropdown (Setting)
+      if (data && data.dropdownOptions && data.dropdownOptions.length > 0) {
+        const select = document.getElementById('noteSelect');
+        if (select.options.length <= 2) {
+          const currentVal = select.value;
+          let optsHtml = '<option value="" disabled selected>เลือกรายการ...</option>';
+          data.dropdownOptions.forEach(opt => {
+            optsHtml += `<option value="${opt}">${opt}</option>`;
+          });
+          optsHtml += '<option value="อื่นๆ">✏️ อื่นๆ (ระบุเอง)</option>';
+          select.innerHTML = optsHtml;
+          if (currentVal) select.value = currentVal;
+        }
+      }
+
+      // 3. อัปเดตประวัติ
+      const list = document.getElementById('history-list');
+      
+      if (!data || !data.recent || data.recent.length === 0) {
+        list.innerHTML = '<div style="text-align:center; color:#ccc; margin-top:20px;">ยังไม่มีรายการจ้า</div>';
+        return;
+      }
+
+      let html = '';
+      data.recent.forEach(item => {
+        const color = item.type === 'รายรับ' ? '#8BC34A' : '#FF7043'; 
+        
+        html += `
+          <div class="history-item" style="border-left-color: ${color}">
+            <div style="flex:1;">
+              <div style="font-weight:bold; font-size:1.1rem; color:${color}">
+                 ${item.type==='รายรับ' ? '+' : '-'} ${parseFloat(item.amount).toLocaleString()}
+              </div>
+              <div style="font-size:0.9rem; color:#555;">${item.note} <span style="font-size:0.8rem; color:#aaa;">(${item.dateStr})</span></div>
+            </div>
+            <button onclick="deleteItem(${item.rowNumber})" style="background:none; border:none; font-size:1.2rem; opacity:0.6; cursor:pointer;">🗑️</button>
+          </div>
+        `;
+      });
+      list.innerHTML = html;
+    }
+
+    function deleteItem(rowNumber) {
+      if(!confirm("ลบรายการนี้จริงๆ เหรอ?")) return;
+      document.getElementById('loader').style.display = 'block';
+      google.script.run.withSuccessHandler(function(data) {
+        document.getElementById('loader').style.display = 'none';
+        updateUI(data);
+      }).withFailureHandler(function(err) {
+        document.getElementById('loader').style.display = 'none';
+        alert("เกิดข้อผิดพลาดในการลบ: " + err);
+      }).deleteAndGetDashboard(rowNumber);
+    }
+
+    function toggleHistory() {
+      const sheet = document.getElementById('history-sheet');
+      if (sheet.style.bottom === '0px') {
+        sheet.style.bottom = '-100%';
+      } else {
+        sheet.style.bottom = '0px';
+      }
+    }
+  </script>
+</body>
+</html>
