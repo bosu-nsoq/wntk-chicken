@@ -4,18 +4,36 @@
   <base target="_top">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <title>Chicken Account</title>
+  <title>Chicken</title>
 
-  <!-- PWA & Apple iOS Standalone App Meta Tags -->
+  <!-- คำบรรยายและรูปภาพแสดงผลเวลาแชร์ลิงก์ -->
+  <meta name="description" content="แอปบันทึกรายรับรายจ่าย กิจกรรมเลี้ยงไก่ไข่">
+  <meta property="og:title" content="Chicken">
+  <meta property="og:description" content="แอปบันทึกรายรับรายจ่าย กิจกรรมเลี้ยงไก่ไข่">
+  <meta property="og:image" content="https://i.postimg.cc/V6DPphnK/chicken.png">
+  <meta property="og:type" content="website">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Chicken">
+  <meta name="twitter:description" content="แอปบันทึกรายรับรายจ่าย กิจกรรมเลี้ยงไก่ไข่">
+  <meta name="twitter:image" content="https://i.postimg.cc/V6DPphnK/chicken.png">
+
+  <!-- Favicon & PWA Icons -->
+  <link rel="icon" type="image/png" href="https://i.postimg.cc/V6DPphnK/chicken.png">
+  <link rel="shortcut icon" type="image/png" href="https://i.postimg.cc/V6DPphnK/chicken.png">
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#FFF9C4">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Chicken Account">
-  <link rel="apple-touch-icon" href="icon.png">
-  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <meta name="apple-mobile-web-app-title" content="Chicken">
+  <link rel="apple-touch-icon" href="https://i.postimg.cc/V6DPphnK/chicken.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="https://i.postimg.cc/V6DPphnK/chicken.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="https://i.postimg.cc/V6DPphnK/chicken.png">
 
-  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@300;500;700&display=swap" rel="stylesheet">
+  <!-- โหลดฟอนต์ Mali สำหรับ UI ระบบ และ Sarabun สำหรับพิมพ์รายงานเอกสารทางการ -->
+  <link href="https://fonts.googleapis.com/css2?family=Mali:wght@300;500;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
   <style>
     /* Font Mali ทั้งเว็บ */
     body {
@@ -39,7 +57,7 @@
       text-align: center;
       box-shadow: 0 10px 30px rgba(93, 64, 55, 0.1);
       border: 2px solid white;
-      position: relative; /* เพื่อให้ปุ่มประวัติอ้างอิงตำแหน่งได้ */
+      position: relative; /* เพื่อให้อ้างอิงตำแหน่งปุ่มได้ */
       box-sizing: border-box;
     }
 
@@ -74,7 +92,7 @@
     }
     input#amount::placeholder { color: #E0E0E0; }
 
-    select, input[type="text"] {
+    select, input[type="text"], input[type="number"], input[type="month"] {
       width: 100%; padding: 15px; border: none; border-radius: 15px;
       background: #fff; 
       font-family: 'Mali', cursive; font-size: 1rem;
@@ -96,17 +114,32 @@
     .btn-income { background: #8BC34A; }
     .btn-expense { background: #FF7043; }
 
-    /* ปุ่มประวัติเล็กๆ (Floating Button) */
-    .history-btn-small {
+    /* ปุ่มด้านบน: ปุ่มพิมพ์รายงาน (ซ้าย) และปุ่มประวัติ (ขวา) */
+    .print-btn-small {
       position: absolute;
-      top: 15px; right: 15px; /* ขยับตำแหน่งนิดหน่อยให้ดูสมดุล */
+      top: 15px; left: 15px;
       background: #fff; border: 2px solid #FFF176;
       width: 40px; height: 40px; border-radius: 50%;
       font-size: 1.2rem; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
       box-shadow: 0 2px 5px rgba(0,0,0,0.1);
       z-index: 10;
+      transition: transform 0.2s;
     }
+    .print-btn-small:active { transform: scale(0.92); }
+
+    .history-btn-small {
+      position: absolute;
+      top: 15px; right: 15px;
+      background: #fff; border: 2px solid #FFF176;
+      width: 40px; height: 40px; border-radius: 50%;
+      font-size: 1.2rem; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      z-index: 10;
+      transition: transform 0.2s;
+    }
+    .history-btn-small:active { transform: scale(0.92); }
 
     /* Slide Sheet (ประวัติ) */
     #history-sheet {
@@ -134,21 +167,46 @@
       display: none; justify-content: center; align-items: center; z-index: 2000;
     }
     .modal-box {
-      background: white; padding: 30px; border-radius: 30px; width: 80%; max-width: 300px;
+      background: white; padding: 25px 20px; border-radius: 30px; width: 85%; max-width: 320px;
       text-align: center; font-family: 'Mali', cursive;
       animation: popUp 0.3s;
+      box-sizing: border-box;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
     }
     @keyframes popUp { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
     .loader { display: none; margin: 10px auto; width: 30px; height: 30px; border: 4px solid #fff; border-top: 4px solid #FBC02D; border-radius: 50%; animation: spin 1s linear infinite; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+    /* ปฏิทินแบบใสทับ ไม่ให้เห็นไอคอนเกะกะ */
+    #print-c-day::-webkit-calendar-picker-indicator {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      opacity: 0; cursor: pointer;
+    }
+
+    .modal-action-btn {
+      padding: 12px 15px;
+      border: none;
+      border-radius: 15px;
+      font-family: 'Mali', cursive;
+      font-size: 0.95rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 3px 0 rgba(0,0,0,0.08);
+      white-space: nowrap;
+      transition: transform 0.15s;
+    }
+    .modal-action-btn:active { transform: translateY(2px); box-shadow: none; }
   </style>
 </head>
 <body>
 
   <div class="main-card">
-    <div class="history-btn-small" onclick="toggleHistory()">📜</div>
+    <!-- ปุ่มพิมพ์รายงาน (ซ้าย) และ ปุ่มประวัติ (ขวา) -->
+    <div class="print-btn-small" onclick="openPrintModal()" title="พิมพ์รายงานบัญชี">🖨️</div>
+    <div class="history-btn-small" onclick="toggleHistory()" title="ประวัติรายการ">📜</div>
 
     <h2>บัญชีรายรับ-รายจ่าย<br>โครงการเลี้ยงไก่ไข่ 🐣</h2>
 
@@ -173,6 +231,7 @@
     <div id="loader" class="loader"></div>
   </div>
 
+  <!-- Slide Sheet ประวัติ -->
   <div id="history-sheet">
     <div class="sheet-header">
       ประวัติ 5 รายการล่าสุด
@@ -183,6 +242,7 @@
     </div>
   </div>
 
+  <!-- Modal ยืนยันข้อมูล -->
   <div class="modal-overlay" id="confirmModal">
     <div class="modal-box">
       <h3>ยืนยันข้อมูล</h3>
@@ -191,6 +251,40 @@
         <button class="btn" style="background:#eee; color:#555; box-shadow:none;" onclick="closeModal('confirmModal')">แก้ก่อน</button>
         <button class="btn" style="background:#8BC34A; box-shadow:none;" onclick="submitData()">ตกลง</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 🖨️ Modal กำหนดช่วงเวลาพิมพ์รายงานบัญชี -->
+  <div class="modal-overlay" id="printModal">
+    <div class="modal-box">
+      <h3 style="margin-top:0; color:#F57F17; font-size:1.15rem;">🖨️ กำหนดช่วงเวลาพิมพ์รายงาน</h3>
+
+      <!-- 1. พิมพ์รายวัน (แบบเลือกวันเดือนปี พ.ศ.) -->
+      <div style="display:flex; gap:6px; margin-bottom:10px; align-items:center;">
+        <div style="position:relative; flex:1; display:flex; align-items:center;">
+          <input type="text" id="print-c-day-display" readonly placeholder="วว/ดด/ปปปป (พ.ศ.)" style="padding:10px; font-size:0.85rem; width:100%; cursor:pointer; text-align:center; background:#FFFDE7; margin-bottom:0; border:1px solid #FFE082;" onclick="openPrintCalendar()" title="คลิกเพื่อเลือกวันที่">
+          <input type="date" id="print-c-day" style="position:absolute; inset:0; width:100%; height:100%; opacity:0; cursor:pointer;" onchange="onPrintDateChange(this.value)">
+        </div>
+        <button class="modal-action-btn" style="background:#8BC34A;" onclick="triggerPrintCustom('day')">พิมพ์รายวัน</button>
+      </div>
+
+      <!-- 2. พิมพ์รายเดือน -->
+      <div style="display:flex; gap:6px; margin-bottom:10px; align-items:center;">
+        <input type="month" id="print-c-month" style="padding:10px; font-size:0.85rem; flex:1; cursor:pointer; margin-bottom:0; background:#FFFDE7; border:1px solid #FFE082;" onclick="try{this.showPicker()}catch(e){}">
+        <button class="modal-action-btn" style="background:#FFA726;" onclick="triggerPrintCustom('month')">พิมพ์รายเดือน</button>
+      </div>
+
+      <!-- 3. พิมพ์รายปี -->
+      <div style="display:flex; gap:6px; margin-bottom:10px; align-items:center;">
+        <input type="number" id="print-c-year" placeholder="พิมพ์ปี พ.ศ. (เช่น 2569)" style="padding:10px; font-size:0.85rem; flex:1; margin-bottom:0; background:#FFFDE7; border:1px solid #FFE082;">
+        <button class="modal-action-btn" style="background:#42A5F5;" onclick="triggerPrintCustom('year')">พิมพ์รายปี</button>
+      </div>
+
+      <!-- 4. พิมพ์ทั้งหมด -->
+      <button class="modal-action-btn" style="width:100%; margin-top:5px; background:#7E57C2; font-size:0.95rem; padding:11px;" onclick="triggerPrintCustom('all')">📄 พิมพ์ข้อมูลทั้งหมด</button>
+
+      <!-- ปุ่มปิดหน้าต่าง -->
+      <button class="btn" style="width:100%; margin-top:10px; background:transparent; border:1px solid #E0E0E0; color:#888; box-shadow:none; padding:10px; font-size:0.9rem;" onclick="closeModal('printModal')">ปิดหน้าต่าง</button>
     </div>
   </div>
 
@@ -264,7 +358,6 @@
                 }
               })
               .catch(err => {
-                // Fallback ไป POST หากคำขอยาวหรือ GET มีปัญหา
                 fetch(url, {
                   method: "POST",
                   headers: { "Content-Type": "text/plain;charset=utf-8" },
@@ -432,6 +525,327 @@
       } else {
         sheet.style.bottom = '0px';
       }
+    }
+
+    // ============================================================
+    // ระบบพิมพ์รายงานบัญชี (Print Report System)
+    // ============================================================
+    function openPrintModal() {
+      document.getElementById('printModal').style.display = 'flex';
+      // ตั้งค่าเริ่มต้นวันที่เป็นวันปัจจุบัน
+      const today = new Date();
+      const y = today.getFullYear();
+      const m = (today.getMonth() + 1).toString().padStart(2, '0');
+      const d = today.getDate().toString().padStart(2, '0');
+      const yBE = y + 543;
+      
+      const dayInput = document.getElementById('print-c-day');
+      const dayDisplay = document.getElementById('print-c-day-display');
+      if (dayInput && !dayInput.value) {
+        dayInput.value = `${y}-${m}-${d}`;
+        if (dayDisplay) dayDisplay.value = `${d}/${m}/${yBE}`;
+      }
+      
+      const monthInput = document.getElementById('print-c-month');
+      if (monthInput && !monthInput.value) {
+        monthInput.value = `${y}-${m}`;
+      }
+      
+      const yearInput = document.getElementById('print-c-year');
+      if (yearInput && !yearInput.value) {
+        yearInput.value = yBE;
+      }
+    }
+
+    function openPrintCalendar() {
+      const el = document.getElementById('print-c-day');
+      if (el) {
+        if (typeof el.showPicker === 'function') {
+          try { el.showPicker(); return; } catch(e) {}
+        }
+        el.focus();
+        el.click();
+      }
+    }
+
+    function onPrintDateChange(val) {
+      const display = document.getElementById('print-c-day-display');
+      if (!val) { if (display) display.value = ''; return; }
+      const parts = val.split('-');
+      if (parts.length === 3) {
+        let y = parseInt(parts[0], 10);
+        let yBE = y > 2400 ? y : y + 543;
+        let m = parts[1].padStart(2, '0');
+        let d = parts[2].padStart(2, '0');
+        if (display) display.value = `${d}/${m}/${yBE}`;
+      }
+    }
+
+    function triggerPrintCustom(type) {
+      let val = ""; 
+      let rangeText = "";
+
+      if (type === 'day') {
+        val = document.getElementById('print-c-day').value;
+        if (!val && document.getElementById('print-c-day-display')) {
+          let disp = document.getElementById('print-c-day-display').value.trim();
+          if (disp.includes('/')) {
+            let p = disp.split('/');
+            if (p.length === 3) {
+              let d = p[0].padStart(2, '0');
+              let m = p[1].padStart(2, '0');
+              let y = parseInt(p[2], 10);
+              let yCE = y > 2400 ? y - 543 : y;
+              val = `${yCE}-${m}-${d}`;
+              document.getElementById('print-c-day').value = val;
+            }
+          }
+        }
+        if (val) {
+          let p = val.split('-');
+          let y = parseInt(p[0], 10);
+          let yBE = y > 2400 ? y : y + 543;
+          let d = p[2].padStart(2, '0');
+          let m = p[1].padStart(2, '0');
+          rangeText = "ประจำวันที่ " + d + "/" + m + "/" + yBE;
+        }
+      } else if (type === 'month') {
+        val = document.getElementById('print-c-month').value;
+        if (val) {
+          let p = val.split('-');
+          let y = parseInt(p[0], 10);
+          let yBE = y > 2400 ? y : y + 543;
+          rangeText = "ประจำเดือน " + p[1] + "/" + yBE;
+        }
+      } else if (type === 'year') {
+        val = document.getElementById('print-c-year').value;
+        if (val) {
+          let rawY = parseInt(val, 10);
+          let yBE = rawY > 2400 ? rawY : rawY + 543;
+          rangeText = "ประจำปี พ.ศ. " + yBE;
+        }
+      } else if (type === 'all') {
+        triggerPrint('all');
+        return;
+      }
+
+      if (!val) { alert("⚠️ กรุณาระบุเวลาที่ต้องการพิมพ์ให้ครบถ้วน"); return; }
+      triggerPrint({ type: 'custom_' + type, value: val, text: rangeText });
+    }
+
+    function triggerPrint(range) {
+      document.getElementById('printModal').style.display = 'none';
+
+      let win = window.open("", "_blank");
+      if (!win) { alert("⚠️ เบราว์เซอร์บล็อกหน้าต่างพิมพ์ กรุณาอนุญาต Pop-up ก่อนครับ"); return; }
+      win.document.write("<h3 style='font-family:Sarabun, sans-serif; text-align:center; padding:30px;'>⏳ กำลังดึงข้อมูลรายงาน...</h3>");
+
+      let rangeText = typeof range === 'object' ? range.text : 'ข้อมูลทั้งหมด';
+
+      google.script.run.withSuccessHandler(function(data) {
+        if (!data || data.length === 0) {
+          win.document.body.innerHTML = `
+            <div style="font-family:'Sarabun', sans-serif; text-align:center; padding:50px; color:#555;">
+              <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" style="height:65px; margin-bottom:10px;"><br>
+              <h2 style="margin:5px 0;">โรงเรียนวัดหนองตะเฆ่</h2>
+              <h3>ไม่พบข้อมูลรายการ (${rangeText})</h3>
+              <p style="margin-top:20px;"><button onclick="window.close()" style="padding:8px 18px; font-family:'Sarabun'; cursor:pointer;">ปิดหน้าต่าง</button></p>
+            </div>`;
+          return;
+        }
+
+        const now = new Date();
+        const thaiYear = now.getFullYear() + 543;
+        const thaiMonth = (now.getMonth() + 1).toString().padStart(2, '0');
+        const thaiDay = now.getDate().toString().padStart(2, '0');
+        const thaiHours = now.getHours().toString().padStart(2, '0');
+        const thaiMinutes = now.getMinutes().toString().padStart(2, '0');
+        const printDateThai = `${thaiDay}/${thaiMonth}/${thaiYear} เวลา ${thaiHours}:${thaiMinutes} น.`;
+
+        // คำนวณยอดรวมรายรับและรายจ่าย
+        let totalIncome = 0;
+        let totalExpense = 0;
+        data.forEach(item => {
+          let amt = parseFloat(item.amount) || 0;
+          if (item.type === 'รายรับ') totalIncome += amt;
+          else if (item.type === 'รายจ่าย') totalExpense += amt;
+        });
+        let netBalance = totalIncome - totalExpense;
+
+        let html = `<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>รายงานบัญชีรายรับ-รายจ่าย - กิจกรรมเลี้ยงไก่ไข่</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after, html, body, table, th, td, h2, h3, p, div, span {
+      font-family: 'Sarabun', sans-serif !important;
+      box-sizing: border-box;
+    }
+    @media print {
+      @page { size: A4 portrait; margin: 1.2cm 1cm; }
+      thead { display: table-header-group; }
+      tfoot { display: table-footer-group; }
+      tr { page-break-inside: avoid; }
+      .no-print { display: none !important; }
+    }
+    body {
+      font-family: 'Sarabun', sans-serif !important;
+      padding: 20px 25px;
+      color: #222;
+      background: #fff;
+      margin: 0;
+    }
+    .header { text-align: center; margin-bottom: 20px; }
+    .header img { height: 75px; margin-bottom: 6px; }
+    .header h2 { margin: 2px 0; font-size: 20px; font-weight: 700; color: #1B4332; }
+    .header h3 { margin: 2px 0; font-size: 16px; font-weight: 600; color: #2D6A4F; }
+    .header p { margin: 4px 0; font-size: 13px; color: #555; }
+    
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    thead { display: table-header-group; }
+    th, td { border: 1px solid #999; padding: 7px 9px; font-size: 13.5px; text-align: left; }
+    th { background: #F5F5F5; color: #222; text-align: center; font-weight: 600; }
+    
+    .income-text { color: #2E7D32; font-weight: 600; }
+    .expense-text { color: #C62828; font-weight: 600; }
+    
+    .summary-card {
+      margin-top: 15px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 15px;
+      font-size: 14px;
+    }
+    .summary-box {
+      border: 1px solid #ccc;
+      padding: 8px 14px;
+      border-radius: 6px;
+      background: #FAFAFA;
+      text-align: right;
+    }
+    
+    .sign-section {
+      margin-top: 35px;
+      display: flex;
+      justify-content: space-between;
+      page-break-inside: avoid;
+    }
+    .sign-box {
+      width: 45%;
+      text-align: center;
+      font-size: 14px;
+      line-height: 1.8;
+    }
+
+    .no-print {
+      margin-bottom: 15px;
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .btn-print {
+      background: #2D6A4F;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <button class="btn-print" onclick="window.print()">🖨️ สั่งพิมพ์เอกสาร</button>
+    <button class="btn-print" style="background:#757575;" onclick="window.close()">✖ ปิดหน้านี้</button>
+  </div>
+
+  <div class="header">
+    <img src="https://i.postimg.cc/mDdv8xpQ/tra-rong-re-yn.png" alt="โลโก้โรงเรียนวัดหนองตะเฆ่"><br>
+    <h2>โรงเรียนวัดหนองตะเฆ่</h2>
+    <h3>รายงานบัญชีรายรับ-รายจ่าย กิจกรรมเลี้ยงไก่ไข่ (${rangeText})</h3>
+    <p>พิมพ์เมื่อ: ${printDateThai} • ข้อมูลทั้งหมด ${data.length} รายการ</p>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 7%;">ลำดับ</th>
+        <th style="width: 15%;">วันที่ (พ.ศ.)</th>
+        <th style="width: 10%;">เวลา</th>
+        <th style="width: 32%;">รายการ</th>
+        <th style="width: 12%;">ประเภท</th>
+        <th style="width: 12%;">รายรับ (บาท)</th>
+        <th style="width: 12%;">รายจ่าย (บาท)</th>
+      </tr>
+    </thead>
+    <tbody>`;
+
+        data.forEach((r, idx) => {
+          let incomeStr = r.type === 'รายรับ' ? parseFloat(r.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-';
+          let expenseStr = r.type === 'รายจ่าย' ? parseFloat(r.amount).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-';
+          
+          html += `<tr>
+            <td style="text-align:center;">${idx + 1}</td>
+            <td style="text-align:center;">${r.date}</td>
+            <td style="text-align:center;">${r.time}</td>
+            <td>${r.note || '-'}</td>
+            <td style="text-align:center; font-weight:600; color:${r.type==='รายรับ'?'#2E7D32':'#C62828'};">${r.type}</td>
+            <td style="text-align:right; ${r.type==='รายรับ'?'color:#2E7D32; font-weight:600;':''}">${incomeStr}</td>
+            <td style="text-align:right; ${r.type==='รายจ่าย'?'color:#C62828; font-weight:600;':''}">${expenseStr}</td>
+          </tr>`;
+        });
+
+        html += `
+    </tbody>
+    <tfoot>
+      <tr style="background:#F5F5F5; font-weight:bold;">
+        <td colspan="5" style="text-align:center;">รวมทั้งสิ้น</td>
+        <td style="text-align:right; color:#2E7D32;">${totalIncome.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+        <td style="text-align:right; color:#C62828;">${totalExpense.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})}</td>
+      </tr>
+      <tr style="background:#FFF9C4; font-weight:bold;">
+        <td colspan="5" style="text-align:center;">💰 ยอดเงินคงเหลือสุทธิ</td>
+        <td colspan="2" style="text-align:center; font-size:15px; color:${netBalance>=0?'#1B5E20':'#B71C1C'};">
+          ${netBalance.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2})} บาท
+        </td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="sign-section">
+    <div class="sign-box">
+      ลงชื่อ ........................................................... ผู้จัดทำรายงาน<br>
+      (...........................................................)<br>
+      ผู้รับผิดชอบกิจกรรมเลี้ยงไก่ไข่
+    </div>
+    <div class="sign-box">
+      ลงชื่อ ........................................................... ผู้ตรวจทาน<br>
+      (...........................................................)<br>
+      ครูที่ปรึกษา / หัวหน้าโครงการ
+    </div>
+  </div>
+
+  <script>
+    // สั่งพิมพ์อัตโนมัติเมื่อเอกสารโหลดเสร็จ
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+      }, 500);
+    };
+  <\/script>
+</body>
+</html>`;
+
+        win.document.open();
+        win.document.write(html);
+        win.document.close();
+      }).withFailureHandler(function(err) {
+        win.document.body.innerHTML = `<h3 style='color:red; text-align:center; font-family:Sarabun;'>เกิดข้อผิดพลาดในการโหลดข้อมูล: ${err}</h3>`;
+      }).getReportData(range);
     }
   </script>
 </body>

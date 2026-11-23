@@ -1,5 +1,5 @@
 /**
- * บัญชีรายรับ-รายจ่าย โครงการเลี้ยงไก่ไข่ 🐣
+ * Chicken - แอปบันทึกรายรับรายจ่าย กิจกรรมเลี้ยงไก่ไข่ 🐣
  * Google Apps Script Backend (Code.gs)
  * รองรับทั้งการเปิดตรงผ่าน Web App และเชื่อมต่อผ่าน GitHub Pages (Dual Mode)
  */
@@ -50,7 +50,7 @@ function doGet(e) {
   
   return template.evaluate()
     .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover')
-    .setTitle('Chicken Account')
+    .setTitle('Chicken')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
 
@@ -94,7 +94,6 @@ function updateSheetBalance(sheet) {
     // ดึง column B (Type) และ C (Amount)
     var data = sheet.getRange(2, 2, lastRow - 1, 2).getValues(); 
     data.forEach(r => {
-      // เช็คค่าว่าเป็นตัวเลขหรือไม่เพื่อป้องกัน error
       var amount = parseFloat(r[1]) || 0;
       if(r[0] == 'รายรับ') total += amount;
       else if(r[0] == 'รายจ่าย') total -= amount;
@@ -132,7 +131,7 @@ function deleteAndGetDashboard(rowNumber) {
   return getDashboardData();
 }
 
-// ดึงข้อมูลแสดงผล
+// ดึงข้อมูลแสดงผลแดชบอร์ด
 function getDashboardData() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.getSheetByName('Data');
@@ -154,7 +153,7 @@ function getDashboardData() {
   };
 }
 
-// ดึง 5 รายการล่าสุด (จัดรูปแบบวันที่จากที่นี่เลย เพื่อแก้ปัญหาไม่แสดงผล)
+// ดึง 5 รายการล่าสุด
 function _getRecentList(sheet) {
   var lastRow = sheet.getLastRow();
   if (lastRow < 2) return [];
@@ -163,7 +162,6 @@ function _getRecentList(sheet) {
   var data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
   
   var list = data.map((row, index) => {
-    // แปลงวันที่เป็นข้อความไทยสวยๆ
     var dateStr = "";
     try {
       dateStr = Utilities.formatDate(new Date(row[0]), "GMT+7", "d MMM HH:mm");
@@ -173,7 +171,7 @@ function _getRecentList(sheet) {
 
     return {
       rowNumber: index + 2,
-      dateStr: dateStr, // ส่งเป็นข้อความไปเลย
+      dateStr: dateStr,
       type: row[1],
       amount: row[2],
       note: row[3]
@@ -182,4 +180,88 @@ function _getRecentList(sheet) {
   
   // กลับด้านเอาล่าสุดขึ้นก่อน ตัดมา 5 ตัว
   return list.reverse().slice(0, 5);
+}
+
+// -------------------------------------------------------------
+// ระบบพิมพ์รายงานบัญชี (Print Report System)
+// -------------------------------------------------------------
+
+/**
+ * ดึงข้อมูลรายงานบัญชีตามช่วงเวลาที่กำหนด
+ */
+function getReportData(range) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName('Data');
+  if (!sheet) return [];
+  var lastRow = sheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  var data = sheet.getRange(2, 1, lastRow - 1, 4).getValues();
+  var today = new Date();
+  var result = [];
+
+  for (var i = 0; i < data.length; i++) {
+    var rawDate = data[i][0];
+    var d = new Date(rawDate);
+    if (isNaN(d.getTime())) continue;
+
+    if (checkDateMatch(d, today, range)) {
+      var dBE = d.getFullYear() + 543;
+      var dateBE = Utilities.formatDate(d, "GMT+7", "dd/MM/") + dBE;
+      var timeStr = Utilities.formatDate(d, "GMT+7", "HH:mm");
+      var type = String(data[i][1] || '').trim();
+      var amount = parseFloat(data[i][2]) || 0;
+      var note = String(data[i][3] || '').trim();
+
+      result.push({
+        rowNumber: i + 2,
+        date: dateBE,
+        time: timeStr,
+        type: type,
+        amount: amount,
+        note: note
+      });
+    }
+  }
+
+  return result;
+}
+
+/**
+ * ฟังก์ชันตรวจสอบวันที่ตามช่วงเวลา (รายวัน, รายเดือน, รายปี, หรือทั้งหมด)
+ */
+function checkDateMatch(rowDate, today, range) {
+  if (!rowDate) return false;
+  if (typeof range === 'object' && range !== null) {
+    if (range.type === 'custom_day') {
+      var val = String(range.value).trim();
+      var y, m, d;
+      if (val.includes('/')) {
+        var parts = val.split('/');
+        d = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10) - 1;
+        y = parseInt(parts[2], 10);
+      } else {
+        var parts = val.split('-');
+        y = parseInt(parts[0], 10);
+        m = parseInt(parts[1], 10) - 1;
+        d = parseInt(parts[2], 10);
+      }
+      if (y > 2400) y -= 543;
+      return (rowDate.getDate() == d && rowDate.getMonth() == m && rowDate.getFullYear() == y);
+    } else if (range.type === 'custom_month') {
+      var parts = String(range.value).trim().split('-');
+      var y = parseInt(parts[0], 10);
+      var m = parseInt(parts[1], 10) - 1;
+      if (y > 2400) y -= 543;
+      return (rowDate.getMonth() == m && rowDate.getFullYear() == y);
+    } else if (range.type === 'custom_year') {
+      var y = parseInt(range.value, 10);
+      if (y > 2400) y -= 543;
+      return (rowDate.getFullYear() == y);
+    }
+  } else if (range === 'all') {
+    return true;
+  }
+  return false;
 }

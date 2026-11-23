@@ -1,7 +1,7 @@
 {
-  "name": "Chicken Account - โครงการเลี้ยงไก่ไข่ 🐣",
-  "short_name": "Chicken Account",
-  "description": "บัญชีรายรับ-รายจ่าย โครงการเลี้ยงไก่ไข่ 🐣",
+  "name": "Chicken",
+  "short_name": "Chicken",
+  "description": "แอปบันทึกรายรับรายจ่าย กิจกรรมเลี้ยงไก่ไข่",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -10,21 +10,21 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "icon.png",
+      "src": "https://i.postimg.cc/V6DPphnK/chicken.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon.png",
+      "src": "https://i.postimg.cc/V6DPphnK/chicken.png",
       "sizes": "512x512",
       "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
       "purpose": "any maskable"
     }
   ]
