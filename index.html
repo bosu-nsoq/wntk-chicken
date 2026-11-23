@@ -645,7 +645,8 @@
 
   <!-- 🐣 Modal ต้อนรับ Admin (พร้อมลูกเล่นไก่และไข่น่ารักๆ) -->
   <div class="modal-overlay" id="welcomeModal" onclick="closeModal('welcomeModal')">
-    <div class="modal-box welcome-box" style="cursor:pointer;" title="แตะเพื่อปิด">
+    <div class="modal-box welcome-box" style="cursor:pointer; position:relative;" title="แตะเพื่อปิด">
+      <span class="close-sheet" style="top:12px; right:15px; font-size:1.1rem; cursor:pointer;" onclick="closeModal('welcomeModal')">✖</span>
       <div class="welcome-chick-wrapper">
         <span class="sparkle sparkle-1">✨</span>
         <span class="sparkle sparkle-2">🌟</span>
@@ -886,9 +887,12 @@
       const modal = document.getElementById('welcomeModal');
       if (modal) {
         modal.style.display = 'flex';
-        setTimeout(() => {
-          closeModal('welcomeModal');
-        }, 1800);
+        const chick = modal.querySelector('.welcome-chick');
+        if (chick) {
+          chick.style.animation = 'none';
+          void chick.offsetWidth;
+          chick.style.animation = 'hatchChick 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards, chickHop 1.4s ease-in-out infinite alternate 0.7s';
+        }
       }
     }
 
