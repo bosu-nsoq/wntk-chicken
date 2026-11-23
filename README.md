@@ -2,7 +2,9 @@
 
 เว็บแอปพลิเคชันสำหรับบันทึกรายรับ-รายจ่าย **"กิจกรรมเลี้ยงไก่ไข่" โรงเรียนวัดหนองตะเฆ่** ออกแบบสำหรับใช้งานบนมือถือได้อย่างสะดวก รวดเร็ว และเป็นระเบียบ ด้วยโทนสีเหลือง-ขาวพาสเทล พร้อมฟอนต์ **Mali** สำหรับหน้าจอใช้งาน และฟอนต์ **Sarabun (สารบรรณ)** สำหรับระบบพิมพ์รายงานเอกสารทางการ รองรับการทำงานแบบ **Dual Mode** (รันตรงบน Google Apps Script หรือรันผ่าน GitHub Pages เชื่อมต่อฐานข้อมูล Google Sheets แบบเรียลไทม์) และรองรับมาตรฐาน **PWA (Progressive Web App)** เพิ่มลงหน้าจอโฮมบน iPhone / iPad / Android ได้เต็มจอ
 
-🌐 **GitHub Pages URL:** [https://bosu-nsoq.github.io/wntk-chicken/](https://bosu-nsoq.github.io/wntk-chicken/)
+🌐 **ลิงก์เข้าใช้งาน:**
+- **GitHub Pages:** [https://bosu-nsoq.github.io/wntk-chicken/](https://bosu-nsoq.github.io/wntk-chicken/)
+- **Google Apps Script Web App:** [https://script.google.com/macros/s/AKfycbylK8-IoG1Ku6muRwsdyD43nWJ0pBRJFMMEaewnF4NTuxuj2CwrFRNEqopxxF2T1EBurg/exec](https://script.google.com/macros/s/AKfycbylK8-IoG1Ku6muRwsdyD43nWJ0pBRJFMMEaewnF4NTuxuj2CwrFRNEqopxxF2T1EBurg/exec)
 
 ---
 

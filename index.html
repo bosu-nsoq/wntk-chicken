@@ -299,17 +299,11 @@
     // ============================================================
     // API Bridge: เชื่อมต่อ Google Apps Script เมื่อรันบน GitHub Pages
     // ============================================================
-    let GAS_URL = localStorage.getItem('chicken_gas_url') || "";
+    const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbylK8-IoG1Ku6muRwsdyD43nWJ0pBRJFMMEaewnF4NTuxuj2CwrFRNEqopxxF2T1EBurg/exec";
+    let GAS_URL = localStorage.getItem('chicken_gas_url') || DEFAULT_GAS_URL;
 
     function getGasUrl() {
-      if (!GAS_URL || GAS_URL === "YOUR_GAS_URL_HERE") {
-        const input = prompt("🐣 กรุณากรอก Web App URL ของ Google Apps Script (เช่น https://script.google.com/macros/s/.../exec):");
-        if (input && input.trim()) {
-          GAS_URL = input.trim();
-          localStorage.setItem('chicken_gas_url', GAS_URL);
-        }
-      }
-      return GAS_URL;
+      return localStorage.getItem('chicken_gas_url') || GAS_URL || DEFAULT_GAS_URL;
     }
 
     function createGasProxy(successFn, failureFn) {
