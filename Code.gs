@@ -125,7 +125,7 @@ function deleteAndGetDashboard(rowNumber) {
   try {
     sheet.deleteRow(rowNumber);
   } catch(e) {
-    // กรณีลบไม่สำเร็จ (เช่นแถวหายไปแล้ว) ให้ข้ามไป
+    // กรณีลบไม่สำเร็จ ให้ข้ามไป
   }
   
   return getDashboardData();
@@ -149,6 +149,7 @@ function getDashboardData() {
   return {
     total: total,
     recent: _getRecentList(sheet),
+    allTransactions: getReportData('all'),
     dropdownOptions: options
   };
 }
