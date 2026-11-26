@@ -1,10 +1,14 @@
-const CACHE_NAME = 'chicken-account-v1';
+const CACHE_NAME = 'chicken-account-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
-  './icon.png'
+  './icon.png',
+  './icon-192.png',
+  './icon-512.png',
+  './apple-touch-icon.png',
+  './chicken.png'
 ];
 
 self.addEventListener('install', (event) => {
